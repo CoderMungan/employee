@@ -188,3 +188,14 @@ docker-compose -f docker-compose.yml run web python manage.py makemigrations
 docker-compose -f docker-compose.yml run web python manage.py migrate
 docker-compose -f docker-compose.yml up
 ```
+
+# Notes:
+
+- I will do native language that:
+
+```bash
+Enviroment olarak database baglantilarini tutmak icin ugrasmadim sonuc olarak bir production mantigi soz konusu degil burada sizler icin rahatlik olmasi icin direk docker icerisinde bulunuyor.
+Yalniz SECRET_KEY i tutmak durumunda kaldim bilginize.
+Zevkli bir projeydi saygilarimi sunarim.
+Saygilarimi sunarim!
+```
