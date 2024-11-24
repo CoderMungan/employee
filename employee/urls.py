@@ -57,6 +57,9 @@ urlpatterns = [
         include(
             [
                 path("users/", include("apps.users.urls")),
+                path("worklog/", include("apps.worklog.urls")),
+                path("leaverequest/", include("apps.leaverequest.urls")),
+                path("notifications/", include("apps.notifications.urls")),
             ]
         ),
     ),

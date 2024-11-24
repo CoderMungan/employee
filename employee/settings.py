@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from datetime import timedelta
+from django.conf import settings
 
 
 load_dotenv()
@@ -30,29 +32,53 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
+
+# CORS
+CORS_ORIGIN_ALLOW_ALL = True
+"""
+CORS_ALLOWED_ORIGINS = [
+    "https://example.com",
+    "https://sub.example.com",
+    "http://localhost:3000",
+]
+"""
 
 
 # Application definition
 
-INSTALLED_APPS = [
+ADMIN_THIRD_PART = ["jazzmin"]
+
+DJANGO_DEFAULT = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "drf_yasg",
-    "apps.users",
-    "apps.leave",
-    "apps.utils",
-    "apps.workflow",
-    "apps.notifications",
 ]
+
+THIRD_PARTY = [
+    "drf_yasg",
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "corsheaders",
+]
+
+PROJECT_APP = [
+    "apps.users",
+    "apps.notifications",
+    "apps.leaverequest",
+    "apps.worklog",
+    "apps.holidays",
+]
+
+INSTALLED_APPS = ADMIN_THIRD_PART + DJANGO_DEFAULT + THIRD_PARTY + PROJECT_APP
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -78,6 +104,24 @@ TEMPLATES = [
     },
 ]
 
+# REST_FRAMEWORK and Simple JWT
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": settings.SECRET_KEY,  # Gizli anahtar
+    "AUTH_HEADER_TYPES": ("Bearer",),  # Authorization başlığı
+}
+
 WSGI_APPLICATION = "employee.wsgi.application"
 AUTH_USER_MODEL = "users.CustomUser"
 
@@ -86,11 +130,18 @@ AUTH_USER_MODEL = "users.CustomUser"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_DB", "postgres"),
+        "USER": os.getenv("POSTGRES_USER", "postgres"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "postgres"),
+        "HOST": os.getenv("POSTGRES_HOST", "db"),
+        "PORT": os.getenv("POSTGRES_PORT", "5432"),
     }
 }
-
+# CELERY
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -116,7 +167,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Istanbul"
 
 USE_I18N = True
 

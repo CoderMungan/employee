@@ -4,6 +4,8 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 from django.db import models
+from apps.worklog.models import WorkLog
+from apps.leaverequest.models import LeaveRequest
 
 
 class CustomUserManager(BaseUserManager):
@@ -44,19 +46,31 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     user_type = models.CharField(
         max_length=10, choices=USER_TYPE_CHOICES, default="staff"
     )
-    annual_leave_days = models.DecimalField(
-        max_digits=5, decimal_places=2, default=14
-    )  # Yıllık izin günleri
-    monthly_work_hours = models.DecimalField(
-        max_digits=6, decimal_places=2, default=0
-    )  # Aylık çalışma saatleri
+    annual_leave_days = models.DecimalField(max_digits=5, decimal_places=2, default=14)
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)  # Admin paneline erişim için gerekli
-    is_admin = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
+    # Perms (manager and employee)
+    is_manager = models.BooleanField(default=False)
     is_employee = models.BooleanField(default=False)
+    # Annual Leave Days
+    annual_leave_days = models.FloatField(default=15.0)
+    # Used Leave Daysholidays
+    remaining_leave_days = models.FloatField(default=15.0)
+    used_leave_days = models.FloatField(default=0.0)
+    total_late_minutes = models.PositiveIntegerField(default=0)
+    monthly_working_hours = models.FloatField(default=0.0)
+    # Relation with WorkLog
+    worklog = models.ManyToManyField(WorkLog, verbose_name=("WorkLog"), blank=True)
+    # Relation with LeaveRequest
+    leaverequest = models.ManyToManyField(
+        LeaveRequest,
+        verbose_name=("Leave Request"),
+        related_name="leaverequest",
+        blank=True,
+    )
 
     objects = CustomUserManager()
 

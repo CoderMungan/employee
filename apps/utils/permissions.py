@@ -1,16 +1,16 @@
 from rest_framework import permissions
 from rest_framework.exceptions import PermissionDenied
 
-# Custom Permissions
 
-
-class IsAdminWithAuth(permissions.BasePermissions):
+class IsManagerWithAuth(permissions.BasePermission):
     """
-    For the admin
+    For the manager
     """
 
     def has_permission(self, request, view) -> bool:
-        return request.user and request.user.is_authendicated and request.user.is_admin
+        return (
+            request.user and request.user.is_authenticated and request.user.is_manager
+        )
 
     def has_object_permission(self, request, view, obj):
         return True
@@ -23,20 +23,20 @@ class IsEmployeeWithAuth(permissions.BasePermission):
 
     def has_permission(self, request, view) -> bool:
         return (
-            request.user and request.user.is_authendicated and request.user.is_employee
+            request.user and request.user.is_authenticated and request.user.is_employee
         )
 
     def has_object_permission(self, request, view, obj):
         return True
 
 
-class IsAdmin(permissions.BasePermission):
+class IsManager(permissions.BasePermission):
     """
-    For the admin with out auth
+    For the manager with out auth
     """
 
     def has_permission(self, request, view):
-        return request.user and request.user.is_admin
+        return request.user and request.user.is_manager
 
     def has_object_permission(self, request, view, obj):
         return True
